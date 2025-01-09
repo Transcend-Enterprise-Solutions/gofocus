@@ -2,13 +2,13 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-import "../global.css";
+import "../../global.css";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -16,32 +16,54 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors.light.tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
+            position: 'absolute', // Floating tab bar on iOS
+            backgroundColor: 'white',
+            borderTopWidth: 0,
+            elevation: 10, // Shadow on Android
           },
-          default: {},
+          default: {
+            backgroundColor: 'white',
+            borderTopWidth: 0,
+            elevation: 10,
+          },
         }),
-      }}>
+      }}
+    >
+
+      {/* Settings Tab */}
       <Tabs.Screen
-        name="index"
+        name="settings"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="settings" size={size} color={color} />
+          ),
         }}
       />
+
+      {/* Home Tab */}
       <Tabs.Screen
-        name="explore"
+        name="home"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
+          ),
         }}
       />
+
+      {/* Profile Tab */}
+      <Tabs.Screen
+          name="profile"
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome5 name="user" size={size} color={color} />
+            ),
+          }}
+      />
+      
     </Tabs>
   );
 }
