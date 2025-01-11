@@ -35,19 +35,20 @@ export default function HomeScreen() {
   return (
     <ImageBackground
       source={require('../../assets/images/bg.jpg')}
-      className="flex-1"
+      className="flex-1 justify-center items-center"
+      resizeMode="cover"
     >
       <SafeAreaView className="flex-1 justify-center items-center">
 
         <TouchableOpacity
             onPress={handleAddTask}
-            className="absolute top-12 right-5 bg-black/60 p-4 rounded-full drop-shadow-lg"
+            className="absolute top-16 -right-4 bg-black/60 p-4 rounded-full drop-shadow-lg"
           >
           <Ionicons name="add" size={22} color="white" />
         </TouchableOpacity>
 
         <View style={styles.circleContainer}>
-          <Svg height={radius * 2 + 20} width={radius * 2 + 20} style={{ overflow: 'visible' }} className='absolute'>
+          <Svg height={radius * 2 + 20} width={radius * 2 + 20} style={styles.svg} className='absolute'>
             <Circle
               cx={radius + 10}
               cy={radius + 10}
@@ -86,4 +87,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'visible',
   },
+
+  svg: {
+    overflow: 'visible',
+    position: 'absolute',
+  }
 });
