@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView, ImageBackground, View, Text, StyleSheet } from 'react-native';
 
-const Settings = () => {
+export default function Settings () {
     return (
         <ImageBackground
             source={require('../../assets/images/bg.jpg')}
@@ -29,5 +29,3 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
-
-export default Settings;

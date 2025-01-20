@@ -6,7 +6,9 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./@types"],
+    "moduleResolution": "node"
   },
   "include": [
     "**/*.ts",
@@ -14,5 +16,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"
-  ]
+  ],
 }
