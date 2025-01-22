@@ -6,24 +6,29 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 interface TaskListViewProps {
   setTaskView: (show: boolean) => void;
   setAddTaskView: (show: boolean) => void;
+  onSelectTask: (task: Task) => void; 
 }
 
 export const TaskListView: React.FC<TaskListViewProps> = ({ 
   setTaskView, 
-  setAddTaskView 
+  setAddTaskView,
+  onSelectTask 
 }) => {
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const { getAllTasks, toggleTaskCompletion } = useTaskController();
+  const [isLoading, setIsLoading] = useState(true);
 
   const loadTasks = async () => {
+    setIsLoading(true);
     try {
-      const fetchedTasks = await getAllTasks();
-      setTasks(fetchedTasks);
+      const allTasks = await getAllTasks();
+      const incompleteTasks = allTasks.filter(task => !task.completed);
+      setTasks(incompleteTasks);
     } catch (error) {
       console.error('Failed to load tasks:', error);
     } finally {
-
+      setIsLoading(false);
     }
   };
 
@@ -54,7 +59,10 @@ export const TaskListView: React.FC<TaskListViewProps> = ({
                 </View>
             </View>
             <View>
-                <TouchableOpacity onPress={() => handleToggleTask(task.id)}>
+                <TouchableOpacity onPress={() => {
+                      onSelectTask(task);
+                      setTaskView(false);
+                    }}>
                     <Ionicons name="play" size={20} color={'#ffd6d6'} />
                 </TouchableOpacity>
             </View>

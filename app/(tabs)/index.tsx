@@ -1,31 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TextInput, SafeAreaView, ImageBackground, Text, View, Dimensions, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, Animated, Keyboard } from 'react-native';
+import { TextInput, SafeAreaView, ImageBackground, Text, View, Dimensions, Image, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, Animated, Keyboard } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import CyclicScrollPicker from '@/components/home-components/CyclicScrollPicker';
 import HorizontalScrollLoopPicker from '@/components/home-components/HorizontalScrollLoopPicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTaskController, Task } from '@/components/storage/TasksController';
 import { TaskListView } from '@/components/home-components/TaskListView';
+import { PomodoroTimer } from '@/components/home-components/PomodoroTimer';
 
 const { width } = Dimensions.get('window');
 const radius = width * 0.35;
 const circumference = 2 * Math.PI * radius;
 
 export default function HomeScreen() {
-  const [seconds, setSeconds] = useState(1500);
+  const [seconds, setSeconds] = useState(60);
+  // const [seconds, setSeconds] = useState(1500);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [showTaskView, setTaskView] = useState(false);
   const [showAddTaskView, setAddTaskView] = useState(false);
-  const [selectedMinutes, setSelectedMinutes] = useState(25);
+  const [selectedMinutes, setSelectedMinutes] = useState(1);
+  // const [selectedMinutes, setSelectedMinutes] = useState(25);
   const [numberOfPomodoros, setNumberOfPomodoro] = useState(1);
   const [overlayOpacity] = useState(new Animated.Value(0));
   const inputRef = useRef<TextInput>(null);
   const [taskName, setTaskName] = useState('');
   const { createTask } = useTaskController();
   const strokeDashoffset = circumference * (1 - seconds / (selectedMinutes * 60));
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const { initializeDatabase } = useTaskController();
+  const [isToggling, setIsToggling] = useState(false);
+  const { toggleTaskCompletion } = useTaskController();
+  const [timeLeft, setTimeLeft] = useState<number>(0);
 
   useEffect(() => {
     const init = async () => {
@@ -145,6 +152,36 @@ export default function HomeScreen() {
     }
   };
 
+  const handleTaskSelect = (task: Task) => {
+    setSelectedTask(task);
+  };
+
+  const handleToggleComplete = async () => {
+    if (!selectedTask || isToggling) return;
+    
+    setIsToggling(true);
+    setSelectedTask(prev => prev ? {
+      ...prev,
+      completed: !prev.completed
+    } : null);
+
+    setTimeout(async () => {
+      await toggleTaskCompletion(selectedTask.id);
+      setIsToggling(false);
+      setSelectedTask(null);
+    }, 500);
+  };
+
+  const handleCloseTask = () => {
+    setSelectedTask(null);
+  };
+
+  const handlePhaseChange = (newDuration: number) => {
+    setSeconds(newDuration);
+    setIsActive(true);
+    setIsPaused(false);
+  };
+
   return (
     <ImageBackground
       source={require('../../assets/images/bg.jpg')}
@@ -152,16 +189,67 @@ export default function HomeScreen() {
       resizeMode="cover">
       <SafeAreaView className="flex-1 justify-center items-center">
 
-        {/* Task View ----------------------------------------------------------------------- */}
+        {/* Task View Button ---------------------------------------------------------------- */}
         <View className='absolute top-32 w-full flex-row justify-center px-6'>
-            <TouchableOpacity 
-              onPress={openTaskView}
-              disabled={isActive}
-              className='bg-white/30 border border-white/80 px-8 flex-row justify-center py-4 rounded-full w-full'
-            >
-              <Text className="text-slate-800 text-lg font-medium text-center">Select Task...</Text>
-            </TouchableOpacity>
+          
+              {selectedTask ? (
+                <View className='bg-white/30 border border-white/80 p-4 flex-row justify-between rounded-full w-full'>
+                  <View className='flex-row justify-left items-center'>
+                    <TouchableOpacity 
+                      onPress={handleToggleComplete}
+                      disabled={isToggling}
+                      className='mr-3'
+                    >
+                      <View className={`w-8 h-8 rounded-full border border-slate-800 items-center justify-center
+                        ${selectedTask.completed ? 'bg-slate-800' : 'bg-transparent'}`}
+                      >
+                        {selectedTask.completed && (
+                          <Ionicons name="checkmark" size={16} color="white" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+
+                    <View className='flex-row items-center'>
+                        <Text className="text-slate-800 text-lg font-medium">
+                          {selectedTask.name}
+                        </Text>
+                        <Text className="text-slate-600 text-sm ml-2">
+                          ( {selectedTask.numberOfPomodoros} pomodoro{selectedTask.numberOfPomodoros !== 1 ? 's' : ''} )
+                        </Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity 
+                    onPress={handleCloseTask}
+                    className='ml-3'
+                  >
+                    <Ionicons name="close-circle" size={24} color="#4b5563" />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity 
+                    onPress={openTaskView}
+                    disabled={isActive}
+                    className='bg-white/30 border border-white/80 px-8 flex-row justify-center py-4 rounded-full w-full'>
+                    <Text className="text-slate-800 text-lg font-medium text-center">
+                      Select Task...
+                    </Text>
+                </TouchableOpacity>
+              )}
         </View>
+
+        {/* Number of Pomodoro View --------------------------------------------------------- */}
+        {selectedTask && (
+           <PomodoroTimer 
+            numberOfPomodoros={selectedTask.numberOfPomodoros}
+            onComplete={() => {
+              setIsActive(false);
+              setSeconds(0);
+            }}
+            currentSeconds={seconds}
+            onPhaseChange={handlePhaseChange}
+          />
+        )}
 
         {/* Timer --------------------------------------------------------------------------- */}
         <View style={styles.circleContainer}>
@@ -267,6 +355,7 @@ export default function HomeScreen() {
                   <TaskListView 
                     setTaskView={setTaskView}
                     setAddTaskView={setAddTaskView}
+                    onSelectTask={handleTaskSelect}
                   />
 
                   <View className="flex-row w-full justify-center items-center px-4 py-4 mt-2 absolute bottom-0 bg-slate-600">
@@ -288,7 +377,7 @@ export default function HomeScreen() {
               </View>
         </Modal>
 
-        {/* Add Task View Modal -------------------------------------------------------------- */}
+        {/* Add Task View Modal ------------------------------------------------------------- */}
         {showAddTaskView && (
           <Animated.View 
             className='w-full h-full bg-black absolute'
@@ -363,5 +452,10 @@ const styles = StyleSheet.create({
   },
   pickerContent: {
     paddingVertical: 20,
+  },
+  pomodoroImg: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain'
   },
 });
