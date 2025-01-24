@@ -7,10 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import "../global.css";
 import { DatabaseProvider } from '@/components/storage/DatabaseProvider';
-
 import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -32,7 +29,13 @@ export default function RootLayout() {
   return (
     <DatabaseProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
+        <Stack
+          screenOptions={{
+            gestureDirection: 'horizontal',
+            animation: 'slide_from_right',
+            animationTypeForReplace: 'push'
+          }}
+        >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>

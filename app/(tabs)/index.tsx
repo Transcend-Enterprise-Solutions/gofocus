@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TextInput, SafeAreaView, ImageBackground, Text, View, Dimensions, Image, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, Animated, Keyboard } from 'react-native';
+import { TextInput, SafeAreaView, ImageBackground, Text, View, Dimensions, Image, 
+  StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, Animated, Keyboard 
+} from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import CyclicScrollPicker from '@/components/home-components/CyclicScrollPicker';
 import HorizontalScrollLoopPicker from '@/components/home-components/HorizontalScrollLoopPicker';
@@ -7,6 +9,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTaskController, Task } from '@/components/storage/TasksController';
 import { TaskListView } from '@/components/home-components/TaskListView';
 import { PomodoroTimer } from '@/components/home-components/PomodoroTimer';
+import CustomTabBar from '@/components/home-components/CustomTabBar'
+
 
 const { width } = Dimensions.get('window');
 const radius = width * 0.35;
@@ -500,6 +504,7 @@ export default function HomeScreen() {
           </View>
         </Modal>
 
+        <CustomTabBar />
       </SafeAreaView>
     </ImageBackground>
   );
