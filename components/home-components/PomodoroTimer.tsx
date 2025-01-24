@@ -7,6 +7,7 @@ interface PomodoroTimerProps {
   onComplete?: () => void;
   currentSeconds: number;
   onPhaseChange: (duration: number) => void;
+  onStatusChange: (newStatus: boolean) => void;
 }
 
 type TimerPhase = 'work' | 'break';
@@ -15,7 +16,8 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   numberOfPomodoros,
   onComplete,
   currentSeconds,
-  onPhaseChange
+  onPhaseChange,
+  onStatusChange,
 }) => {
   const [currentPomodoro, setCurrentPomodoro] = React.useState(1);
   const [phase, setPhase] = React.useState<TimerPhase>('work');
@@ -26,13 +28,10 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 
   const startNewPhase = (newPhase: TimerPhase, autoStart: boolean = true) => {
     const duration = newPhase === 'work' ? 1 * 60 : 2 * 60;
-    // const duration = newPhase === 'work' ? 25 * 60 : 5 * 60;
     setPhase(newPhase);
     onPhaseChange(duration);
     if (!autoStart) {
-      // This will set the time but not start the countdown
-      setPhase(newPhase);
-      onPhaseChange(duration);
+      onStatusChange(false);
     }
   };
 
@@ -111,7 +110,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
                   setCurrentPomodoro(prev => prev + 1);
                   startNewPhase('work');
                 }}
-                className="bg-slate-200 px-6 py-3 rounded-full"
+                className="px-6 py-3 rounded-full"
               >
                 <Text className="text-gray-300 text-lg font-medium">Skip Break</Text>
               </TouchableOpacity>
@@ -138,7 +137,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
         <View className="flex-1 justify-center px-6 items-center">
           <View className="rounded-2xl p-6 w-full items-center" style={ styles.alert }>
             <Text className="text-2xl font-semibold text-white mb-4">
-              All Pomodoros Complete!
+              All Pomodoros Complete
             </Text>
             <Text className="text-lg text-slate-600 mb-6 text-center">
               Congratulations! You've completed all your pomodoros.
@@ -177,7 +176,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
                   setCurrentPomodoro(prev => prev + 1);
                   startNewPhase('work', false); // Don't auto-start
                 }}
-                className="bg-slate-200 px-6 py-3 rounded-full"
+                className="px-6 py-3 rounded-full"
               >
                 <Text className="text-gray-300 text-lg font-medium">Later</Text>
               </TouchableOpacity>

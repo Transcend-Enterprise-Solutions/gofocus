@@ -10,7 +10,7 @@ export default function Settings () {
         >
             <SafeAreaView className="flex-1 justify-center items-center">
                 <View style={styles.container}>
-                    <Text style={styles.text}>Settings Screen</Text>
+                    
                 </View>
             </SafeAreaView>
         </ImageBackground>
@@ -23,9 +23,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'transparent',
-    },
-    text: {
-        fontSize: 20,
-        fontWeight: 'bold',
     },
 });

@@ -26,6 +26,7 @@ export default function HorizontalScrollLoopPicker({ onSelect, initialCount = 1 
             <ScrollView
               ref={scrollViewRef}
               horizontal
+              keyboardShouldPersistTaps="handled"
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{
                   paddingRight: Dimensions.get('window').width - ITEM_WIDTH - ITEM_SPACING * 2,
@@ -43,8 +44,8 @@ export default function HorizontalScrollLoopPicker({ onSelect, initialCount = 1 
                   onPress={() => handleSelect(count)}
                   style={{ width: ITEM_WIDTH, marginHorizontal: ITEM_SPACING }}
                 >
-                  <View className="h-16 rounded-full py-2 px-4 justify-left items-center" style={[ selectedCount === count && styles.selectedText ]}>
-                    <Text className={`text-2xl font-medium ${selectedCount === count ? 'text-slate-200' : 'text-gray-300'}`}>
+                  <View className="rounded-full py-2 px-4 justify-left items-center" style={[ selectedCount === count && styles.selectedText ]}>
+                    <Text className={`text-2xl font-medium ${selectedCount === count ? 'text-slate-800' : 'text-gray-300'}`}>
                       {count}
                     </Text>
                   </View>

@@ -14,14 +14,12 @@ const circumference = 2 * Math.PI * radius;
 
 export default function HomeScreen() {
   const [seconds, setSeconds] = useState(60);
-  // const [seconds, setSeconds] = useState(1500);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [showTaskView, setTaskView] = useState(false);
   const [showAddTaskView, setAddTaskView] = useState(false);
   const [selectedMinutes, setSelectedMinutes] = useState(1);
-  // const [selectedMinutes, setSelectedMinutes] = useState(25);
   const [numberOfPomodoros, setNumberOfPomodoro] = useState(1);
   const [overlayOpacity] = useState(new Animated.Value(0));
   const inputRef = useRef<TextInput>(null);
@@ -33,6 +31,7 @@ export default function HomeScreen() {
   const [isToggling, setIsToggling] = useState(false);
   const { toggleTaskCompletion } = useTaskController();
   const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -80,10 +79,15 @@ export default function HomeScreen() {
   };
 
   const handleStop = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setSelectedMinutes(25);
-    setSeconds(25 * 60);
+    if (selectedTask){
+        setShowConfirmModal(true);
+        setIsPaused(true);
+    }else{
+      setIsActive(false);
+      setIsPaused(false);
+      setSelectedMinutes(25);
+      setSeconds(25 * 60);
+    }
   };
 
   const handleTimePress = () => {
@@ -114,7 +118,7 @@ export default function HomeScreen() {
   }
 
   useEffect(() => {
-    if (showTaskView) {
+    if (showAddTaskView || showTaskView || showConfirmModal) {
       Animated.timing(overlayOpacity, {
         toValue: 0.2,
         duration: 200,
@@ -127,7 +131,7 @@ export default function HomeScreen() {
         useNativeDriver: true,
       }).start();
     }
-  }, [showTaskView]);
+  }, [showAddTaskView, showTaskView, showConfirmModal]);
 
   const handleCreateTask = async () => {
     if (!taskName.trim()) {
@@ -157,6 +161,7 @@ export default function HomeScreen() {
   };
 
   const handleToggleComplete = async () => {
+    alert('called');
     if (!selectedTask || isToggling) return;
     
     setIsToggling(true);
@@ -174,12 +179,20 @@ export default function HomeScreen() {
 
   const handleCloseTask = () => {
     setSelectedTask(null);
+    setSeconds(1500);
+    setIsActive(false);
+    setSelectedMinutes(25);
   };
 
   const handlePhaseChange = (newDuration: number) => {
     setSeconds(newDuration);
+    setSelectedMinutes(newDuration / 60);
     setIsActive(true);
     setIsPaused(false);
+  };
+
+  const handleStatusChange = (newStatus: boolean) => {
+    setIsPaused(true);
   };
 
   return (
@@ -188,6 +201,14 @@ export default function HomeScreen() {
       className="flex-1 justify-center items-center"
       resizeMode="cover">
       <SafeAreaView className="flex-1 justify-center items-center">
+
+        {/* Modal Overlay ------------------------------------------------------------------- */}
+        {(showAddTaskView || showTaskView || showConfirmModal) && (
+          <Animated.View 
+            className='w-full h-full bg-black absolute'
+            style={{ opacity: overlayOpacity }}
+          />
+        )}
 
         {/* Task View Button ---------------------------------------------------------------- */}
         <View className='absolute top-32 w-full flex-row justify-center px-6'>
@@ -244,10 +265,13 @@ export default function HomeScreen() {
             numberOfPomodoros={selectedTask.numberOfPomodoros}
             onComplete={() => {
               setIsActive(false);
-              setSeconds(0);
+              setSeconds(1500);
+              setSelectedMinutes(25);
+              handleToggleComplete();
             }}
             currentSeconds={seconds}
             onPhaseChange={handlePhaseChange}
+            onStatusChange={handleStatusChange}
           />
         )}
 
@@ -327,12 +351,6 @@ export default function HomeScreen() {
         )}
 
         {/* Task View Modal ----------------------------------------------------------------- */}
-        {showTaskView && (
-          <Animated.View 
-            className='w-full h-full bg-black absolute'
-            style={{ opacity: overlayOpacity }}
-          />
-        )}
         <Modal
           visible={showTaskView}
           transparent={true}
@@ -378,12 +396,6 @@ export default function HomeScreen() {
         </Modal>
 
         {/* Add Task View Modal ------------------------------------------------------------- */}
-        {showAddTaskView && (
-          <Animated.View 
-            className='w-full h-full bg-black absolute'
-            style={{ opacity: overlayOpacity }}
-          />
-        )}
         <Modal
           visible={showAddTaskView}
           transparent={true}
@@ -392,7 +404,11 @@ export default function HomeScreen() {
         >
           <TouchableOpacity 
             className="flex-1 w-full h-full absolute" 
-            onPress={() => setAddTaskView(false)}
+            onPress={() => {
+              setAddTaskView(false);
+              setTaskName('');
+              setNumberOfPomodoro(1);
+            }}
           ></TouchableOpacity>
               <TouchableWithoutFeedback onPress={() => Keyboard.isVisible()}>
                   <View className="bg-slate-600 rounded-t-3xl absolute bottom-0 w-full">
@@ -417,9 +433,21 @@ export default function HomeScreen() {
 
                       <View className='w-full flex-row justify-between mt-2 px-4'>
                         <View className='w-1/2 flex-row justify-start mt-2'>
-                          <Ionicons className='mr-6' name="calendar" size={20} color={'#4dc3ff'} />
-                          <Ionicons className='mr-6' name="flag" size={20} color={'#b3ffb3'} />
-                          <Ionicons name="pricetag" size={20} color={'#ffccff'} />
+                          <TouchableOpacity 
+                            activeOpacity={1} 
+                            onPress={handleCreateTask}>
+                            <Ionicons className='mr-6' name="calendar" size={20} color={'#4dc3ff'} />
+                          </TouchableOpacity>
+                          <TouchableOpacity 
+                            activeOpacity={1} 
+                            onPress={handleCreateTask}>
+                            <Ionicons className='mr-6' name="flag" size={20} color={'#b3ffb3'} />
+                          </TouchableOpacity>
+                          <TouchableOpacity 
+                            activeOpacity={1} 
+                            onPress={handleCreateTask}>
+                            <Ionicons name="pricetag" size={20} color={'#ffccff'} />
+                          </TouchableOpacity>
                         </View>
                         <View className='w-1/2 flex-row justify-end mt-2'>
                           <TouchableOpacity 
@@ -431,6 +459,45 @@ export default function HomeScreen() {
                       </View>
                   </View>
               </TouchableWithoutFeedback>
+        </Modal>
+
+        {/* Confirm Modal ------------------------------------------------------------------ */}
+        <Modal
+          visible={showConfirmModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View className="flex-1 justify-center px-6 items-center">
+            <View className="rounded-2xl p-6 w-full items-center" style={ styles.alert }>
+              <Text className="text-2xl font-semibold text-white mb-4">
+                Stop this Pomodoro?
+              </Text>
+              <View className="w-full mt-10 flex-row justify-between items-center">
+                  <TouchableOpacity
+                    onPress={() => {
+                      setShowConfirmModal(false);
+                      setIsPaused(false);
+                    }}
+                    className="px-6 py-3 rounded-full"
+                  >
+                    <Text className="text-gray-300 text-lg font-medium">Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedTask(null);
+                      setShowConfirmModal(true);
+                      setSelectedMinutes(25);
+                      setSeconds(25 * 60);
+                      setIsActive(false);
+                      setShowConfirmModal(false);
+                    }}
+                    className="bg-slate-800 px-6 py-4 rounded-full"
+                  >
+                    <Text className="text-white text-lg font-medium">Stop</Text>
+                  </TouchableOpacity>
+                </View>
+            </View>
+          </View>
         </Modal>
 
       </SafeAreaView>
@@ -457,5 +524,10 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     resizeMode: 'contain'
+  },
+  alert: {
+    backgroundColor: '#47576b',
+    padding: 20,
+    borderRadius: 15
   },
 });
