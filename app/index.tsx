@@ -201,7 +201,7 @@ export default function HomeScreen() {
 
   return (
     <ImageBackground
-      source={require('../../assets/images/bg.jpg')}
+      source={require('@/assets/images/bg.jpg')}
       className="flex-1 justify-center items-center"
       resizeMode="cover">
       <SafeAreaView className="flex-1 justify-center items-center">

@@ -4,7 +4,7 @@ import { SafeAreaView, ImageBackground, View, Text, StyleSheet } from 'react-nat
 export default function Settings () {
     return (
         <ImageBackground
-            source={require('../../assets/images/bg.jpg')}
+            source={require('@/assets/images/bg.jpg')}
             className="flex-1 justify-center items-center"
             resizeMode="cover"
         >

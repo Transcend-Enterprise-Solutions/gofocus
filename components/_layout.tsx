@@ -30,12 +30,12 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
-            bottom: 10,
+            bottom: -100,
             backgroundColor: 'transparent',
           },
           default: {
             position: 'absolute',
-            bottom: 25, 
+            bottom: -250, 
             backgroundColor: 'transparent',
             borderTopWidth: 0,
             elevation: 0, 
@@ -44,8 +44,7 @@ export default function TabLayout() {
       }}
     >
 
-      {/* Settings Tab */}
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="settings"
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -54,7 +53,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Home Tab */}
       <Tabs.Screen
         name="index"
         options={{
@@ -64,7 +62,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Profile Tab */}
       <Tabs.Screen
           name="profile"
           options={{
@@ -72,7 +69,7 @@ export default function TabLayout() {
               <Ionicons name="person" size={size} color={color} />
             ),
           }}
-      />
+      /> */}
       
     </Tabs>
   );
