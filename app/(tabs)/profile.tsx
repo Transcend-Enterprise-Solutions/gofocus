@@ -16,13 +16,24 @@ export default function Profile () {
                         >
                             <Image source={require('@/assets/images/back.png')} style={{ height: 25, width: 25 }}/>
                         </TouchableOpacity>
-                        <Image source={require('@/assets/images/blank_profile_pic.png')} className='rounded-full border border-white' style={{ height: 50, width: 50 }}/>
+                        
+                        <TouchableOpacity>
+                            <Image source={require('@/assets/images/blank_profile_pic.png')} className='rounded-full border border-white' style={{ height: 50, width: 50 }}/>
+                        </TouchableOpacity>
                     </View>
                     <View className='flex flex-row items-center justify-between gap-6 mr-2'>
-                        <Image source={require('@/assets/images/premium.png')} style={{ height: 28, width: 28 }}/>
-                        <Image source={require('@/assets/images/group.png')} style={{ height: 28, width: 28 }}/>
-                        <Image source={require('@/assets/images/trophy.png')} style={{ height: 25, width: 25 }}/>
-                        <Image source={require('@/assets/images/graph.png')} style={{ height: 25, width: 25 }}/>
+                        <TouchableOpacity>
+                            <Image source={require('@/assets/images/premium.png')} style={{ height: 28, width: 28 }}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Image source={require('@/assets/images/group.png')} style={{ height: 28, width: 28 }}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Image source={require('@/assets/images/trophy.png')} style={{ height: 25, width: 25 }}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Image source={require('@/assets/images/graph.png')} style={{ height: 25, width: 25 }}/>
+                        </TouchableOpacity>
                     </View>
                 </View>
 
