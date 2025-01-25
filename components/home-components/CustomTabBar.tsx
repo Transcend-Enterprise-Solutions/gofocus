@@ -1,4 +1,3 @@
-import { Tabs } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';

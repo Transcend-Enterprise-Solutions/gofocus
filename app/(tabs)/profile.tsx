@@ -27,33 +27,79 @@ export default function Profile () {
                 </View>
 
                 <View className='p-6'>
-                    <View className='flex flex-row items-center justify-left gap-4 mb-6 border-b border-slate-500 pb-2'>
-                        <Image source={require('@/assets/images/today.png')} style={{ height: 28, width: 28 }}/>
-                        <Text className='text-lg text-white'>Today</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-left gap-4 mb-6 border-b border-slate-500 pb-2'>
-                        <Image source={require('@/assets/images/tomorrow.png')} style={{ height: 28, width: 28 }}/>
-                        <Text className='text-lg text-white'>Tomorrow</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-left gap-4 mb-6 border-b border-slate-500 pb-2'>
-                        <Image source={require('@/assets/images/planned.png')} style={{ height: 28, width: 28 }}/>
-                        <Text className='text-lg text-white'>Planned</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-left gap-4 mb-6 border-b border-slate-500 pb-2'>
-                        <Image source={require('@/assets/images/completed.png')} style={{ height: 28, width: 28 }}/>
-                        <Text className='text-lg text-white'>Completed</Text>
-                    </View>
-                    <View className='flex flex-row items-center justify-left gap-4 mb-6 border-b border-slate-500 pb-2'>
-                        <Image source={require('@/assets/images/projects.png')} style={{ height: 28, width: 28 }}/>
-                        <Text className='text-lg text-white'>Projects</Text>
-                    </View>
+                    <Text className='text-slate-300 mb-8'>Tasks</Text>
+
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-4 pb-2'>
+                            <Image source={require('@/assets/images/today.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>Today</Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-4 pb-2'>
+                            <Image source={require('@/assets/images/tomorrow.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>Tomorrow</Text>
+                        </View>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-4 pb-2'>
+                            <Image source={require('@/assets/images/planned.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>Planned</Text>
+                        </View>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-4 pb-2'>
+                            <Image source={require('@/assets/images/completed.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>Completed</Text>
+                        </View>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-6 pb-2'>
+                            <Image source={require('@/assets/images/projects.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>Projects</Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <Text className='text-slate-300 mb-8'>Preferences</Text>
+
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-4 pb-2'>
+                            <Image source={require('@/assets/images/appearance.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>Appearance</Text>
+                        </View>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-4 pb-2'>
+                            <Image source={require('@/assets/images/notif.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>Notifications and Sounds</Text>
+                        </View>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-4 pb-2'>
+                            <Image source={require('@/assets/images/privacy.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>Privacy and Safety</Text>
+                        </View>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity>
+                        <View className='flex flex-row items-center justify-left gap-4 mb-4 pb-2'>
+                            <Image source={require('@/assets/images/updates.png')} style={{ height: 28, width: 28 }}/>
+                            <Text className='text-lg text-white'>App Updates</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
 
 
                 <View className='flex flex-col items-center justify-center absolute bottom-10 w-full'>
                     <Text className='text-gray-100 mb-4'>Synchronize across all devices</Text>
                     <TouchableOpacity className='bg-green-200 rounded-full py-4 px-12'>
-                        <Text className='text-2xl text-black'>Sign In | Sign Up</Text>
+                        <Text className='text-xl text-black'>Sign In | Sign Up</Text>
                     </TouchableOpacity>                
                 </View>
             </View>

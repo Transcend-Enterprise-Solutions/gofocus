@@ -8,6 +8,11 @@ import 'react-native-reanimated';
 import "../global.css";
 import { DatabaseProvider } from '@/components/storage/DatabaseProvider';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { enableScreens } from 'react-native-screens';
+
+enableScreens(true);
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -27,20 +32,23 @@ export default function RootLayout() {
   }
 
   return (
-    <DatabaseProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack
-          screenOptions={{
-            gestureDirection: 'horizontal',
-            animation: 'slide_from_right',
-            animationTypeForReplace: 'push'
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </DatabaseProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <DatabaseProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack
+            screenOptions={{
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
+              animation: 'slide_from_right',
+              animationTypeForReplace: 'push'
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </DatabaseProvider>
+    </GestureHandlerRootView>
   );
 }

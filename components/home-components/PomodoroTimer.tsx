@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Image, StyleSheet, Modal, Text, TouchableOpacity, Animated } from 'react-native';
-import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 
 interface PomodoroTimerProps {
   numberOfPomodoros: number;
@@ -27,7 +26,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   const [overlayOpacity] = useState(new Animated.Value(0));
 
   const startNewPhase = (newPhase: TimerPhase, autoStart: boolean = true) => {
-    const duration = newPhase === 'work' ? 1 * 60 : 2 * 60;
+    const duration = newPhase === 'work' ? 25 * 60 : 5 * 60;
     setPhase(newPhase);
     onPhaseChange(duration);
     if (!autoStart) {

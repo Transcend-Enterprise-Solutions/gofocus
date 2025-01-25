@@ -17,13 +17,13 @@ const radius = width * 0.35;
 const circumference = 2 * Math.PI * radius;
 
 export default function HomeScreen() {
-  const [seconds, setSeconds] = useState(60);
+  const [seconds, setSeconds] = useState(1500);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [showTaskView, setTaskView] = useState(false);
   const [showAddTaskView, setAddTaskView] = useState(false);
-  const [selectedMinutes, setSelectedMinutes] = useState(1);
+  const [selectedMinutes, setSelectedMinutes] = useState(25);
   const [numberOfPomodoros, setNumberOfPomodoro] = useState(1);
   const [overlayOpacity] = useState(new Animated.Value(0));
   const inputRef = useRef<TextInput>(null);
@@ -465,7 +465,7 @@ export default function HomeScreen() {
               </TouchableWithoutFeedback>
         </Modal>
 
-        {/* Confirm Modal ------------------------------------------------------------------ */}
+        {/* Confirm Modal ------------------------------------------------------------------- */}
         <Modal
           visible={showConfirmModal}
           transparent={true}
@@ -491,7 +491,7 @@ export default function HomeScreen() {
                       setSelectedTask(null);
                       setShowConfirmModal(true);
                       setSelectedMinutes(25);
-                      setSeconds(25 * 60);
+                      setSeconds(1500);
                       setIsActive(false);
                       setShowConfirmModal(false);
                     }}
@@ -504,7 +504,9 @@ export default function HomeScreen() {
           </View>
         </Modal>
 
+        {/* Navigation Bar ------------------------------------------------------------------ */}
         <CustomTabBar />
+
       </SafeAreaView>
     </ImageBackground>
   );
