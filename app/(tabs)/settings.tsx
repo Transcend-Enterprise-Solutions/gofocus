@@ -10,7 +10,7 @@ export default function Settings () {
         >
             <SafeAreaView className="flex-1 justify-center items-center">
                 <View style={styles.container}>
-                    
+                    <Text>Settings</Text>
                 </View>
             </SafeAreaView>
         </ImageBackground>

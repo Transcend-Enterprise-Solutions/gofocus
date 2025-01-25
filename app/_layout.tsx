@@ -19,7 +19,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require('@/assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
@@ -44,21 +44,48 @@ export default function RootLayout() {
     return null;
   }
 
+  interface ScreenOptions {
+    headerShown: boolean;
+    gestureDirection: 'horizontal' | 'vertical';
+    animation: 'slide_from_left' | 'slide_from_bottom' | 'slide_from_right';
+  }
+
+  const getScreenOptions = (routeName: string): ScreenOptions => {
+    switch (routeName) {
+      case 'menu':
+        return {
+          headerShown: false,
+          gestureDirection: 'horizontal',
+          animation: 'slide_from_left',
+        };
+      case 'index':
+        return {
+          headerShown: false,
+          gestureDirection: 'horizontal',
+          animation: 'slide_from_right',
+        };
+      default:
+        return {
+          headerShown: true,
+          gestureDirection: 'horizontal',
+          animation: 'slide_from_left',
+        };
+    }
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <DatabaseProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack
-            screenOptions={{
-              gestureEnabled: true,
-              gestureDirection: 'horizontal',
-              animation: 'slide_from_left',
-              animationTypeForReplace: 'push'
-            }}
-          >
+          <Stack 
+              screenOptions = {({ route }) => ({
+                gestureEnabled: true,
+                animationTypeForReplace: 'push',
+                ...getScreenOptions(route.name),
+              })}
+            >
 
-            <Stack.Screen name="profile" options={{ headerShown: false }} />
-            <Stack.Screen name="settings" options={{ headerShown: false }} />
+            <Stack.Screen name="menu" options={{ headerShown: false }} />
             <Stack.Screen name="index" options={{ headerShown: false }} />
 
 
