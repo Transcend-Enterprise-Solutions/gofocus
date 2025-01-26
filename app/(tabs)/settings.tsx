@@ -1,27 +1,23 @@
-import React from 'react';
-import { SafeAreaView, ImageBackground, View, Text, StyleSheet } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, Image } from 'react-native'
+import React from 'react'
+import { useRouter } from 'expo-router';
 
 export default function Settings () {
+    const router = useRouter();
     return (
-        <ImageBackground
-            source={require('@/assets/images/bg.jpg')}
-            className="flex-1 justify-center items-center"
-            resizeMode="cover"
-        >
-            <SafeAreaView className="flex-1 justify-center items-center">
-                <View style={styles.container}>
-                    <Text>Settings</Text>
+        <SafeAreaView className="flex-1 justify-center items-center bg-slate-600">
+            <View className='w-full h-full'>
+            <View className='p-4 mt-4 flex-row items-center justify-between'>
+                <View className='flex flex-row items-center justify-between gap-4'>
+                    <TouchableOpacity 
+                        onPress={() => {
+                            router.push('/menu');
+                        }}>
+                        <Image source={require('@/assets/images/back.png')} style={{ height: 25, width: 25 }}/>
+                    </TouchableOpacity>
+                    </View>
                 </View>
-            </SafeAreaView>
-        </ImageBackground>
+            </View>
+        </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'transparent',
-    },
-});

@@ -47,31 +47,29 @@ export default function RootLayout() {
   interface ScreenOptions {
     headerShown: boolean;
     gestureDirection: 'horizontal' | 'vertical';
-    animation: 'slide_from_left' | 'slide_from_bottom' | 'slide_from_right';
+    animation: 'slide_from_left' | 'slide_from_right';
   }
 
+  const slideFromLeftPage = [
+    'menu',
+  ]
+
   const getScreenOptions = (routeName: string): ScreenOptions => {
-    switch (routeName) {
-      case 'menu':
-        return {
-          headerShown: false,
-          gestureDirection: 'horizontal',
-          animation: 'slide_from_left',
-        };
-      case 'index':
-        return {
-          headerShown: false,
-          gestureDirection: 'horizontal',
-          animation: 'slide_from_right',
-        };
-      default:
-        return {
-          headerShown: true,
-          gestureDirection: 'horizontal',
-          animation: 'slide_from_left',
-        };
+    if (slideFromLeftPage.includes(routeName)) {
+      return {
+        headerShown: false,
+        gestureDirection: 'horizontal',
+        animation: 'slide_from_left',
+      };
+    } else {
+      return {
+        headerShown: false,
+        gestureDirection: 'horizontal',
+        animation: 'slide_from_right',
+      };
     }
   };
+
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
