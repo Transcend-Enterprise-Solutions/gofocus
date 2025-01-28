@@ -10,7 +10,7 @@ import { useTaskController, Task } from '@/components/storage/TasksController';
 import { TaskListView } from '@/components/home-components/TaskListView';
 import { PomodoroTimer } from '@/components/home-components/PomodoroTimer';
 import CustomTabBar from '@/components/home-components/CustomTabBar'
-
+import { Calendar } from 'react-native-calendars';
 
 const { width } = Dimensions.get('window');
 const radius = width * 0.35;
@@ -36,6 +36,10 @@ export default function HomeScreen() {
   const { toggleTaskCompletion } = useTaskController();
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showTaskTypeModal, setShowTaskTypeModal] = useState(false);
+  const [ taskType, setTaskType] = useState('today');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -197,6 +201,27 @@ export default function HomeScreen() {
 
   const handleStatusChange = (newStatus: boolean) => {
     setIsPaused(true);
+  };
+
+  const setSelectedTaskType = () => {
+    if(taskType == 'today'){
+      setSelectedDate(getTodayDate);
+    }else if(taskType == 'tomorrow'){
+      setSelectedDate(getTomorrowDate);
+    }else{
+      return
+    }
+  }
+
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+  
+  const getTomorrowDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
   };
 
   return (
@@ -439,8 +464,18 @@ export default function HomeScreen() {
                         <View className='w-1/2 flex-row justify-start mt-2'>
                           <TouchableOpacity 
                             activeOpacity={1} 
-                            onPress={handleCreateTask}>
-                            <Ionicons className='mr-6' name="calendar" size={20} color={'#4dc3ff'} />
+                            onPress={() => {setShowTaskTypeModal(true)}}>
+                                <Image 
+                                  source={
+                                    taskType === 'today' 
+                                      ? require('@/assets/images/today.png')
+                                      : taskType === 'tomorrow' 
+                                        ? require('@/assets/images/tomorrow.png')
+                                        : require('@/assets/images/planned.png')
+                                  }
+                                  className='mr-6' 
+                                  style={{ height: 22, width: 22 }}
+                                />
                           </TouchableOpacity>
                           <TouchableOpacity 
                             activeOpacity={1} 
@@ -500,6 +535,111 @@ export default function HomeScreen() {
                     <Text className="text-white text-lg font-medium">Stop</Text>
                   </TouchableOpacity>
                 </View>
+            </View>
+          </View>
+        </Modal>
+        
+        {/* Task Type Modal ------------------------------------------------------------------- */}
+        <Modal
+          visible={showTaskTypeModal}
+          transparent={true}
+          animationType="slide"
+        >
+          <View className="flex-1 w-full justify-center items-end absolute bottom-0">
+            <View className="rounded-t-3xl p-6 w-full items-center" style={ styles.alert }>
+              <Text className="text-2xl font-semibold text-white mb-4">
+                {taskType === 'today' ? 'Today' : 
+                taskType === 'tomorrow' ? 'Tomorrow' : 'Planned'}
+              </Text>
+              
+
+              <View className='flex-row justify-center gap-4 w-full'>
+                <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
+                  <TouchableOpacity onPress={() => {setTaskType('today');}}>
+                      <Image 
+                        source={taskType === 'today' 
+                          ? require('@/assets/images/today.png')
+                          : require('@/assets/images/today-unselected.png')} 
+                        style={{ height: 28, width: 28 }}
+                      />
+                  </TouchableOpacity>
+                </View>
+                <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
+                  <TouchableOpacity onPress={() => {setTaskType('tomorrow');}}>
+                      <Image 
+                        source={taskType === 'tomorrow'
+                          ? require('@/assets/images/tomorrow.png')
+                          : require('@/assets/images/tomorrow-unselected.png')}
+                        style={{ height: 28, width: 28 }}
+                      />
+                  </TouchableOpacity>
+                </View>
+                <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
+                  <TouchableOpacity onPress={() => {
+                      setTaskType('planned');
+                      setShowCalendar(true);
+                    }}>
+                      <Image 
+                        source={taskType === 'planned'
+                          ? require('@/assets/images/planned.png')
+                          : require('@/assets/images/planned-unselected.png')}
+                        style={{ height: 28, width: 28 }}
+                      />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {showCalendar && taskType === 'planned' && (
+                <View className="w-full mt-4">
+                  <Calendar
+                    minDate={getTodayDate()}
+                    onDayPress={(day: any) => {
+                      setSelectedDate(day.dateString);
+                    }}
+                    markedDates={{
+                      [selectedDate || '']: {
+                        selected: true,
+                        selectedColor: '#1e293b'
+                      }
+                    }}
+                    theme={{
+                      backgroundColor: 'transparent',
+                      calendarBackground: 'transparent',
+                      textSectionTitleColor: '#94a3b8',
+                      selectedDayBackgroundColor: '#64748b',
+                      selectedDayTextColor: '#93DC5C',
+                      todayTextColor: '#ffffff',
+                      dayTextColor: '#ffffff',
+                      textDisabledColor: '#5c6e87',
+                      dotColor: '#1e293b',
+                      selectedDotColor: '#ffffff',
+                      arrowColor: '#94a3b8',
+                      monthTextColor: '#ffffff',
+                      textDayFontFamily: 'System',
+                      textMonthFontFamily: 'System',
+                      textDayHeaderFontFamily: 'System',
+                      textDayFontSize: 16,
+                      textMonthFontSize: 16,
+                      textDayHeaderFontSize: 14
+                    }}
+                  />
+                </View>
+              )}
+
+              <View className="w-full mt-10 flex-row justify-between items-center">
+                  <TouchableOpacity onPress={() => {setShowTaskTypeModal(false);}}
+                    className="px-6 py-3 rounded-full">
+                    <Text className="text-gray-300 text-lg font-medium">Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedTaskType;
+                      setShowCalendar(false);
+                      setShowTaskTypeModal(false);
+                      }} className="bg-slate-800 px-6 py-4 rounded-full">
+                    <Text className="text-white text-lg font-medium">Done</Text>
+                  </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
