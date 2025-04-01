@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TextInput, SafeAreaView, ImageBackground, Text, View, Dimensions, Image, 
+import { 
+  TextInput, SafeAreaView, ImageBackground, Text, View, Dimensions, Image, 
   StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, Animated, Keyboard 
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import CyclicScrollPicker from '@/components/home-components/CyclicScrollPicker';
 import HorizontalScrollLoopPicker from '@/components/home-components/HorizontalScrollLoopPicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useTaskController, Task } from '@/components/storage/TasksController';
+import { TaskController, Task } from '@/components/storage/TasksController';
 import { TaskListView } from '@/components/home-components/TaskListView';
 import { PomodoroTimer } from '@/components/home-components/PomodoroTimer';
-import CustomTabBar from '@/components/home-components/CustomTabBar'
+import CustomTabBar from '@/components/home-components/CustomTabBar';
 import { Calendar } from 'react-native-calendars';
+import { ProjectListView } from '@/components/home-components/ProjectListView';
 
 const { width } = Dimensions.get('window');
 const radius = width * 0.35;
@@ -28,17 +30,24 @@ export default function HomeScreen() {
   const [overlayOpacity] = useState(new Animated.Value(0));
   const inputRef = useRef<TextInput>(null);
   const [taskName, setTaskName] = useState('');
-  const { createTask } = useTaskController();
+  const { createTask } = TaskController();
   const strokeDashoffset = circumference * (1 - seconds / (selectedMinutes * 60));
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const { initializeDatabase } = useTaskController();
+  const { initializeDatabase } = TaskController();
   const [isToggling, setIsToggling] = useState(false);
-  const { toggleTaskCompletion } = useTaskController();
+  const { toggleTaskCompletion } = TaskController();
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showTaskTypeModal, setShowTaskTypeModal] = useState(false);
+  const [showPriorityTypeModal, setShowPriorityTypeModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
   const [ taskType, setTaskType] = useState('today');
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [ priorityType, setPriorityType] = useState(1);
+  const [ project, setProject] = useState('Tasks');
+  const dayAfterTomorrow = new Date();
+  dayAfterTomorrow.setUTCDate(dayAfterTomorrow.getDate() + 2);
+  const defaultSelectedDate = dayAfterTomorrow.toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState(defaultSelectedDate);
   const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
@@ -149,6 +158,10 @@ export default function HomeScreen() {
     const newTask: Omit<Task, 'id'> = {
       name: taskName.trim(),
       numberOfPomodoros: numberOfPomodoros,
+      taskType: taskType,
+      taskDate: selectedDate ? selectedDate : new Date().toISOString(),
+      priorityType: priorityType,
+      project: project,
       completed: false,
       createdAt: new Date().toISOString()
     };
@@ -220,9 +233,13 @@ export default function HomeScreen() {
   
   const getTomorrowDate = () => {
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setUTCDate(tomorrow.getDate() + 1);
     return tomorrow.toISOString().split('T')[0];
   };
+
+  const handleProjectSelect = () => {
+
+  }
 
   return (
     <ImageBackground
@@ -232,7 +249,7 @@ export default function HomeScreen() {
       <SafeAreaView className="flex-1 justify-center items-center">
 
         {/* Modal Overlay ------------------------------------------------------------------- */}
-        {(showAddTaskView || showTaskView || showConfirmModal) && (
+        {(showAddTaskView || showTaskView || showConfirmModal || showTaskTypeModal) && (
           <Animated.View 
             className='w-full h-full bg-black absolute'
             style={{ opacity: overlayOpacity }}
@@ -437,67 +454,276 @@ export default function HomeScreen() {
               setAddTaskView(false);
               setTaskName('');
               setNumberOfPomodoro(1);
+              setShowTaskTypeModal(false);
+              setShowPriorityTypeModal(false);
+              setShowProjectModal(false);
             }}
           ></TouchableOpacity>
-              <TouchableWithoutFeedback onPress={() => Keyboard.isVisible()}>
-                  <View className="bg-slate-600 rounded-t-3xl absolute bottom-0 w-full">
-                      <View className='w-full flex justify-center mt-2 p-4'>
-                        <TextInput
-                          ref={inputRef}
-                          className="rounded-lg px-4 py-2 text-2xl text-white"
-                          placeholder="Add new task..."
-                          placeholderTextColor="#94a3b8"
-                          autoFocus={true}
-                          value={taskName}
-                          onChangeText={setTaskName}
-                        />
-                      </View>
-                    
-                      <View className='w-full flex justify-center border-t border-slate-500 pt-2'>
-                        <Text className='text-center text-gray-300 mb-2'>Number of Pomodoros</Text>
-                      </View>
+              <View className='absolute bottom-0 w-full'>
+                  <TouchableWithoutFeedback onPress={() => Keyboard.isVisible()}>
+                      <View className="bg-slate-600 rounded-t-3xl w-full">
+                          <View className='w-full flex justify-center mt-2 p-4'>
+                            <TextInput
+                              ref={inputRef}
+                              className="rounded-lg px-4 py-2 text-2xl text-white"
+                              placeholder="Add new task..."
+                              placeholderTextColor="#94a3b8"
+                              autoFocus={true}
+                              value={taskName}
+                              onChangeText={setTaskName}
+                              onFocus={() => {
+                                setShowTaskTypeModal(false);
+                                setShowPriorityTypeModal(false);
+                                setShowProjectModal(false);
+                              }}
+                            />
+                          </View>
+                        
+                          <View className='w-full flex justify-center border-t border-slate-500 pt-2'>
+                            <Text className='text-center text-gray-300 mb-2'>Number of Pomodoros</Text>
+                          </View>
 
-                      {/* Loop of number 1 to 60 here */}
-                      <HorizontalScrollLoopPicker onSelect={handleSetNumberOfPomodoro} />
+                          {/* Loop of number 1 to 60 here */}
+                          <HorizontalScrollLoopPicker onSelect={handleSetNumberOfPomodoro} />
 
-                      <View className='w-full flex-row justify-between mt-2 px-4'>
-                        <View className='w-1/2 flex-row justify-start mt-2'>
-                          <TouchableOpacity 
-                            activeOpacity={1} 
-                            onPress={() => {setShowTaskTypeModal(true)}}>
+                          <View className='w-full flex-row justify-between items-center mt-2'>
+                            <View className='w-1/2 flex-row justify-start items-center'>
+
+                              <TouchableOpacity 
+                                activeOpacity={1} 
+                                onPress={() => {
+                                  setShowTaskTypeModal(true);
+                                  setShowPriorityTypeModal(false);
+                                  setShowProjectModal(false);
+                                  Keyboard.dismiss()
+                                }} 
+                                className={`px-4 py-2 flex-row justify-center items-center ${showTaskTypeModal ? 'bg-slate-700 rounded-t-lg' : ''}`}>
+                                    <Image 
+                                      source={
+                                        taskType === 'today' 
+                                          ? require('@/assets/images/today.png')
+                                          : taskType === 'tomorrow' 
+                                            ? require('@/assets/images/tomorrow.png')
+                                            : require('@/assets/images/planned.png')
+                                      }
+                                      className='' 
+                                      style={{ height: 22, width: 22 }}
+                                    />
+                              </TouchableOpacity>
+
+                              <TouchableOpacity 
+                                activeOpacity={1} 
+                                onPress={() => {
+                                  setShowTaskTypeModal(false);
+                                  setShowPriorityTypeModal(true);
+                                  setShowProjectModal(false);
+                                  Keyboard.dismiss()
+                                }} 
+                                className={`px-4 py-2 flex-row justify-center items-center ${showPriorityTypeModal ? 'bg-slate-700 rounded-t-lg' : ''}`}>
+                                <Ionicons className='' name="flag" size={21} 
+                                      color={
+                                        priorityType === 1 ? 'white' : 
+                                        priorityType === 2 ? 'lightgreen' : 
+                                        priorityType === 3 ? 'orange' :
+                                        'red'} />
+                              </TouchableOpacity>
+
+                              <TouchableOpacity 
+                                activeOpacity={1} 
+                                onPress={() => {
+                                  setShowTaskTypeModal(false);
+                                  setShowPriorityTypeModal(false);
+                                  setShowProjectModal(true);
+                                  Keyboard.dismiss()
+                                }} 
+                                className={`px-4 py-2 flex-row justify-center items-center gap-2 ${showProjectModal ? 'bg-slate-700 rounded-t-lg' : ''}`}>
+                                    <Image 
+                                      source={require('@/assets/images/task_proj.png')}
+                                      style={{ height: 22, width: 22 }}
+                                    />
+                                    <Text className='text-gray-100 text-lg'>{project}</Text>
+                              </TouchableOpacity>
+
+                            </View>
+
+                            <View className='w-1/2 flex-row justify-end items-center'>
+                              <TouchableOpacity 
+                                activeOpacity={1} 
+                                onPress={handleCreateTask}>
+                                <Text className='text-2xl text-right text-gray-200 mr-4'>Done</Text>
+                              </TouchableOpacity>
+                            </View>
+                            
+                          </View>
+                      </View>
+                  </TouchableWithoutFeedback>
+
+                  {/* Task Type Modal ----------------------------------------------------------- */}
+                  <View className={`flex-1 w-full justify-center items-center transition-all ${showTaskTypeModal ? '' : 'hidden'}`}>
+                      <View className="p-6 w-full items-center bg-slate-700">
+                        <View className='w-full absolute top-0 flex-row justify-end'>
+                            <TouchableOpacity
+                                  onPress={() => {
+                                    setSelectedTaskType;
+                                    setShowCalendar(false);
+                                    setShowTaskTypeModal(false);
+                                    Keyboard.isVisible();
+                                    }} className="py-3">
+                                  <Text className="text-gray-300 text-lg font-medium">Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <Text className="text-xl font-semibold text-white mb-4">
+                          {taskType === 'today' ? 'Today' : 
+                          taskType === 'tomorrow' ? 'Tomorrow' : 'Planned'}
+                        </Text>
+                        
+
+                        <View className='flex-row justify-center gap-4 w-full'>
+                          <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
+                            <TouchableOpacity onPress={() => {setTaskType('today');}}>
                                 <Image 
-                                  source={
-                                    taskType === 'today' 
-                                      ? require('@/assets/images/today.png')
-                                      : taskType === 'tomorrow' 
-                                        ? require('@/assets/images/tomorrow.png')
-                                        : require('@/assets/images/planned.png')
-                                  }
-                                  className='mr-6' 
-                                  style={{ height: 22, width: 22 }}
+                                  source={taskType === 'today' 
+                                    ? require('@/assets/images/today.png')
+                                    : require('@/assets/images/today-unselected.png')} 
+                                  style={{ height: 28, width: 28 }}
                                 />
-                          </TouchableOpacity>
-                          <TouchableOpacity 
-                            activeOpacity={1} 
-                            onPress={handleCreateTask}>
-                            <Ionicons className='mr-6' name="flag" size={20} color={'#b3ffb3'} />
-                          </TouchableOpacity>
-                          <TouchableOpacity 
-                            activeOpacity={1} 
-                            onPress={handleCreateTask}>
-                            <Ionicons name="pricetag" size={20} color={'#ffccff'} />
-                          </TouchableOpacity>
+                            </TouchableOpacity>
+                          </View>
+                          <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
+                            <TouchableOpacity onPress={() => {setTaskType('tomorrow');}}>
+                                <Image 
+                                  source={taskType === 'tomorrow'
+                                    ? require('@/assets/images/tomorrow.png')
+                                    : require('@/assets/images/tomorrow-unselected.png')}
+                                  style={{ height: 28, width: 28 }}
+                                />
+                            </TouchableOpacity>
+                          </View>
+                          <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
+                            <TouchableOpacity onPress={() => {
+                                setTaskType('planned');
+                                setShowCalendar(true);
+                              }}>
+                                <Image 
+                                  source={taskType === 'planned'
+                                    ? require('@/assets/images/planned.png')
+                                    : require('@/assets/images/planned-unselected.png')}
+                                  style={{ height: 28, width: 28 }}
+                                />
+                            </TouchableOpacity>
+                          </View>
                         </View>
-                        <View className='w-1/2 flex-row justify-end mt-2'>
-                          <TouchableOpacity 
-                            activeOpacity={1} 
-                            onPress={handleCreateTask}>
-                            <Text className='text-2xl text-right text-gray-200 mb-2'>Done</Text>
-                          </TouchableOpacity>
-                        </View>
+
+                        {showCalendar && taskType === 'planned' && (
+                          <View className="w-full mt-4">
+                            <Calendar
+                              minDate={defaultSelectedDate}
+                              onDayPress={(day: any) => {
+                                setSelectedDate(day.dateString);
+                              }}
+                              markedDates={{
+                                [selectedDate]: {
+                                  selected: true,
+                                  selectedColor: '#1e293b'
+                                }
+                              }}
+                              theme={{
+                                backgroundColor: 'transparent',
+                                calendarBackground: 'transparent',
+                                textSectionTitleColor: '#94a3b8',
+                                selectedDayBackgroundColor: '#64748b',
+                                selectedDayTextColor: '#93DC5C',
+                                todayTextColor: '#5c6e87',
+                                dayTextColor: '#ffffff',
+                                textDisabledColor: '#5c6e87',
+                                dotColor: '#1e293b',
+                                selectedDotColor: '#ffffff',
+                                arrowColor: '#94a3b8',
+                                monthTextColor: '#ffffff',
+                                textDayFontFamily: 'System',
+                                textMonthFontFamily: 'System',
+                                textDayHeaderFontFamily: 'System',
+                                textDayFontSize: 16,
+                                textMonthFontSize: 16,
+                                textDayHeaderFontSize: 14
+                              }}
+                            />
+                          </View>
+                        )}
+
                       </View>
                   </View>
-              </TouchableWithoutFeedback>
+
+                  {/* Priority Type Modal ----------------------------------------------------------- */}
+                  <View className={`flex-1 w-full justify-center items-center transition-all ${showPriorityTypeModal ? '' : 'hidden'}`}>
+                      <View className="p-6 w-full items-center bg-slate-700">
+                        <View className='w-full absolute top-0 flex-row justify-end'>
+                            <TouchableOpacity
+                                  onPress={() => {
+                                    setShowPriorityTypeModal(false);
+                                    Keyboard.isVisible();
+                                    }} className="py-3">
+                                  <Text className="text-gray-300 text-lg font-medium">Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <Text className="text-xl font-semibold text-white mb-4">
+                          {priorityType === 1 ? 'No Priority' : 
+                          priorityType === 2 ? 'Low Priority' : 
+                          priorityType === 3 ? 'Medium Priority' :
+                          'High Priority'}
+                        </Text>
+                        
+
+                        <View className='flex-row justify-center gap-6 w-full'>
+                          <View className={`flex justify-center items-center p-2 rounded-full ${priorityType === 1 ? 'bg-gray-50/10' : ''}`}>
+                            <TouchableOpacity onPress={() => {setPriorityType(1);}}>
+                                <Ionicons name="flag" size={23} color={ 'white' } />
+                            </TouchableOpacity>
+                          </View>
+                          <View className={`flex justify-center items-center p-2 rounded-full ${priorityType === 2 ? 'bg-gray-50/10' : ''}`}>
+                            <TouchableOpacity onPress={() => {setPriorityType(2);}}>
+                                <Ionicons name="flag" size={23} color={ 'lightgreen' } />
+                            </TouchableOpacity>
+                          </View>
+                          <View className={`flex justify-center items-center p-2 rounded-full ${priorityType === 3 ? 'bg-gray-50/10' : ''}`}>
+                            <TouchableOpacity onPress={() => {setPriorityType(3);}}>
+                                <Ionicons name="flag" size={23} color={ 'orange' } />
+                            </TouchableOpacity>
+                          </View>
+                          <View className={`flex justify-center items-center p-2 rounded-full ${priorityType === 4 ? 'bg-gray-50/10' : ''}`}>
+                            <TouchableOpacity onPress={() => {setPriorityType(4);}}>
+                                <Ionicons name="flag" size={23} color={ 'red' } />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+
+                      </View>
+                  </View>
+
+                  {/* Priority Type Modal ----------------------------------------------------------- */}
+                  <View className={`flex-1 w-full justify-center items-center transition-all ${showProjectModal ? '' : 'hidden'}`}>
+                      <View className="p-6 w-full items-center bg-slate-700">
+                        <View className='w-full absolute top-0 flex-row justify-end'>
+                            <TouchableOpacity
+                                  onPress={() => {
+                                    setShowProjectModal(false);
+                                    Keyboard.isVisible();
+                                    }} className="py-3">
+                                  <Text className="text-gray-300 text-lg font-medium">Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <Text className="text-xl font-semibold text-white mb-4">Select a Project</Text>
+                        
+                        {/* Project List ---------------------------------------------------- */}
+                        <View className='flex-row justify-center w-full'>
+                            <ProjectListView
+                              onSelectProject={handleProjectSelect}
+                            />
+                        </View>
+
+                      </View>
+                  </View>
+              </View>
         </Modal>
 
         {/* Confirm Modal ------------------------------------------------------------------- */}
@@ -539,110 +765,7 @@ export default function HomeScreen() {
           </View>
         </Modal>
         
-        {/* Task Type Modal ------------------------------------------------------------------- */}
-        <Modal
-          visible={showTaskTypeModal}
-          transparent={true}
-          animationType="slide"
-        >
-          <View className="flex-1 w-full justify-center items-end absolute bottom-0">
-            <View className="rounded-t-3xl p-6 w-full items-center" style={ styles.alert }>
-              <Text className="text-2xl font-semibold text-white mb-4">
-                {taskType === 'today' ? 'Today' : 
-                taskType === 'tomorrow' ? 'Tomorrow' : 'Planned'}
-              </Text>
-              
 
-              <View className='flex-row justify-center gap-4 w-full'>
-                <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
-                  <TouchableOpacity onPress={() => {setTaskType('today');}}>
-                      <Image 
-                        source={taskType === 'today' 
-                          ? require('@/assets/images/today.png')
-                          : require('@/assets/images/today-unselected.png')} 
-                        style={{ height: 28, width: 28 }}
-                      />
-                  </TouchableOpacity>
-                </View>
-                <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
-                  <TouchableOpacity onPress={() => {setTaskType('tomorrow');}}>
-                      <Image 
-                        source={taskType === 'tomorrow'
-                          ? require('@/assets/images/tomorrow.png')
-                          : require('@/assets/images/tomorrow-unselected.png')}
-                        style={{ height: 28, width: 28 }}
-                      />
-                  </TouchableOpacity>
-                </View>
-                <View className='flex justify-center items-center p-2 rounded-full bg-gray-50/10'>
-                  <TouchableOpacity onPress={() => {
-                      setTaskType('planned');
-                      setShowCalendar(true);
-                    }}>
-                      <Image 
-                        source={taskType === 'planned'
-                          ? require('@/assets/images/planned.png')
-                          : require('@/assets/images/planned-unselected.png')}
-                        style={{ height: 28, width: 28 }}
-                      />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {showCalendar && taskType === 'planned' && (
-                <View className="w-full mt-4">
-                  <Calendar
-                    minDate={getTodayDate()}
-                    onDayPress={(day: any) => {
-                      setSelectedDate(day.dateString);
-                    }}
-                    markedDates={{
-                      [selectedDate || '']: {
-                        selected: true,
-                        selectedColor: '#1e293b'
-                      }
-                    }}
-                    theme={{
-                      backgroundColor: 'transparent',
-                      calendarBackground: 'transparent',
-                      textSectionTitleColor: '#94a3b8',
-                      selectedDayBackgroundColor: '#64748b',
-                      selectedDayTextColor: '#93DC5C',
-                      todayTextColor: '#ffffff',
-                      dayTextColor: '#ffffff',
-                      textDisabledColor: '#5c6e87',
-                      dotColor: '#1e293b',
-                      selectedDotColor: '#ffffff',
-                      arrowColor: '#94a3b8',
-                      monthTextColor: '#ffffff',
-                      textDayFontFamily: 'System',
-                      textMonthFontFamily: 'System',
-                      textDayHeaderFontFamily: 'System',
-                      textDayFontSize: 16,
-                      textMonthFontSize: 16,
-                      textDayHeaderFontSize: 14
-                    }}
-                  />
-                </View>
-              )}
-
-              <View className="w-full mt-10 flex-row justify-between items-center">
-                  <TouchableOpacity onPress={() => {setShowTaskTypeModal(false);}}
-                    className="px-6 py-3 rounded-full">
-                    <Text className="text-gray-300 text-lg font-medium">Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setSelectedTaskType;
-                      setShowCalendar(false);
-                      setShowTaskTypeModal(false);
-                      }} className="bg-slate-800 px-6 py-4 rounded-full">
-                    <Text className="text-white text-lg font-medium">Done</Text>
-                  </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
 
         {/* Navigation Bar ------------------------------------------------------------------ */}
         <CustomTabBar />

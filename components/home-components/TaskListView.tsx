@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
-import { useTaskController, Task } from '@/components/storage/TasksController';
+import { TaskController, Task } from '@/components/storage/TasksController';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface TaskListViewProps {
@@ -16,7 +16,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({
 }) => {
 
   const [tasks, setTasks] = useState<Task[]>([]);
-  const { getAllTasks, toggleTaskCompletion } = useTaskController();
+  const { getAllTasks, toggleTaskCompletion } = TaskController();
   const [isLoading, setIsLoading] = useState(true);
 
   const loadTasks = async () => {

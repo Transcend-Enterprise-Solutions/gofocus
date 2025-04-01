@@ -5,15 +5,19 @@ export interface Task {
     id: string;
     name: string;
     numberOfPomodoros: number;
+    taskType: string;
+    taskDate: string;
+    priorityType: number;
+    project: string;
     completed: boolean;
     createdAt: string;
 }
 
-export const useTaskController = () => {
+export const TaskController = () => {
   const db = useSQLiteContext();
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize the tasks table
+  // Initialize the tasks table ---------------------------------------------------------------------
   const initializeDatabase = useCallback(async () => {
     try {
       await db.execAsync(
@@ -21,6 +25,10 @@ export const useTaskController = () => {
           id TEXT PRIMARY KEY,
           name TEXT NOT NULL,
           numberOfPomodoros INTEGER NOT NULL,
+          taskType TEXT NULL,
+          taskDate TEXT NULL,
+          priorityType INTEGER NULL,
+          project TEXT NULL,
           completed BOOLEAN NOT NULL DEFAULT 0,
           createdAt TEXT NOT NULL
         )`
@@ -30,17 +38,21 @@ export const useTaskController = () => {
     }
   }, [db]);
 
-  // Create a new task -----------------------------------------------------------------------------
+  // Create a new task ------------------------------------------------------------------------------
   const createTask = useCallback(async (task: Omit<Task, 'id'>) => {
     try {
       const id = Math.random().toString(36).substring(7);
       await db.runAsync(
-        `INSERT INTO tasks (id, name, numberOfPomodoros, completed, createdAt)
-         VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO tasks (id, name, numberOfPomodoros, taskType, taskDate, priorityType, project, completed, createdAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id,
           task.name,
           task.numberOfPomodoros,
+          task.taskType,
+          task.taskDate,
+          task.priorityType,
+          task.project,
           task.completed ? 1 : 0,
           task.createdAt,
         ]
@@ -52,7 +64,7 @@ export const useTaskController = () => {
     }
   }, [db]);
 
-  // Get all tasks ---------------------------------------------------------------------------------
+  // Get all tasks ----------------------------------------------------------------------------------
   const getAllTasks = useCallback(async (): Promise<Task[]> => {
     try {
       const result = await db.getAllAsync<Task>(
@@ -73,7 +85,7 @@ export const useTaskController = () => {
   const getTaskById = useCallback(async (id: string): Promise<Task | null> => {
     try {
       const result = await db.getFirstAsync<Task>(
-        `SELECT id, name, numberOfPomodoros, completed, createdAt 
+        `SELECT id, name, numberOfPomodoros, taskType, taskDate, priorityType, project, completed, createdAt 
          FROM tasks WHERE id = ?`,
         [id]
       );
@@ -94,11 +106,15 @@ export const useTaskController = () => {
     try {
       await db.runAsync(
         `UPDATE tasks 
-         SET name = ?, numberOfPomodoros = ?, completed = ?, createdAt = ?
+         SET name = ?, numberOfPomodoros = ?, taskType = ?, taskDate = ?, priorityType = ?, project = ?, completed = ?, createdAt = ?
          WHERE id = ?`,
         [
           task.name,
           task.numberOfPomodoros,
+          task.taskType,
+          task.taskDate,
+          task.priorityType,
+          task.project,
           task.completed ? 1 : 0,
           task.createdAt,
           task.id,
@@ -122,7 +138,7 @@ export const useTaskController = () => {
     }
   }, [db]);
 
-  // Toggle task completion ----------------------------------------------------------------------------------
+  // Toggle task completion -------------------------------------------------------------------------
   const toggleTaskCompletion = useCallback(async (id: string): Promise<boolean> => {
     try {
       await db.runAsync(
